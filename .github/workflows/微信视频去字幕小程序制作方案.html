@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频无痕去字幕微信小程序开发方案</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #9b59b6;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --text: #333;
+            --bg: #f9f9f9;
+            --card-bg: #fff;
+            --border: #e0e0e0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--bg);
+            padding-top: 70px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(155, 89, 182, 0.2));
+            z-index: 1;
+        }
+
+        header h1 {
+            position: relative;
+            z-index: 2;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            position: relative;
+            z-index: 2;
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .logo span {
+            color: var(--secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary);
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark);
+            cursor: pointer;
+        }
+
+        /* Section Styles */
+        section {
+            margin-bottom: 50px;
+        }
+
+        .section-header {
+            margin-bottom: 30px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            border-radius: 2px;
+        }
+
+        .section-header h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* List Styles */
+        ul, ol {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Code Block */
+        pre {
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Tabs */
+        .tabs {
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--dark);
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--secondary);
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            height: 5px;
+            background-color: #f0f0f0;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            z-index: 1001;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--accent));
+            width: 0%;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 40px 0;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-column h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--secondary);
+            border-radius: 1.5px;
+        }
+
+        .footer-column ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .footer-column li {
+            margin-bottom: 12px;
+        }
+
+        .footer-column a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-column a:hover {
+            color: white;
+            padding-left: 5px;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                position: fixed;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+                transform: translateY(-150%);
+                transition: var(--transition);
+                z-index: 999;
+            }
+
+            .nav-links.active {
+                transform: translateY(0);
+            }
+
+            .nav-links li {
+                margin: 10px 0;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .section-header h2 {
+                font-size: 1.7rem;
+            }
+
+            .card h3 {
+                font-size: 1.3rem;
+            }
+
+            .footer-column {
+                flex: 100%;
+            }
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--secondary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+            opacity: 0;
+            visibility: hidden;
+            z-index: 999;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background-color: var(--accent);
+            transform: translateY(-5px);
+        }
+
+        /* Feature Highlight */
+        .feature-highlight {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.05), rgba(155, 89, 182, 0.05));
+            border-left: 4px solid var(--secondary);
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .feature-highlight h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: var(--light);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 4px solid var(--secondary);
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+        }
+
+        .left {
+            left: 0;
+        }
+
+        .right {
+            left: 50%;
+        }
+
+        .left::after {
+            right: -14px;
+        }
+
+        .right::after {
+            left: -14px;
+        }
+
+        .timeline-content {
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .timeline-content h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .timeline::after {
+                left: 31px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+
+            .timeline-item::after {
+                left: 17px;
+            }
+
+            .left, .right {
+                left: 0;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate {
+            animation: fadeIn 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <nav>
+        <div class="nav-container container">
+            <div class="logo">视频无痕去字幕<span>微信小程序</span></div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">☰</button>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#overview">项目概述</a></li>
+                <li><a href="#technical">技术实现</a></li>
+                <li><a href="#development">开发环境</a></li>
+                <li><a href="#modules">功能模块</a></li>
+                <li><a href="#backend">后台服务</a></li>
+                <li><a href="#ux">用户体验</a></li>
+                <li><a href="#testing">测试优化</a></li>
+                <li><a href="#deployment">部署发布</a></li>
+                <li><a href="#monetization">盈利模式</a></li>
+                <li><a href="#summary">总结展望</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <header>
+        <div class="container">
+            <h1>视频无痕去字幕微信小程序</h1>
+            <p>专业级的视频去字幕解决方案，结合先进AI技术与传统图像处理，为用户提供高效、便捷且高质量的视频二次创作工具</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <section id="overview" class="animate">
+            <div class="section-header">
+                <h2>项目概述</h2>
+            </div>
+
+            <div class="card">
+                <h3>项目背景与目标</h3>
+                <p>随着短视频平台的快速发展，用户对于视频内容的二次创作需求日益增长。在视频创作过程中，去除原有字幕是一个常见但具有挑战性的任务。传统方法往往效果不佳，容易留下痕迹或导致画质下降。</p>
+                <div class="feature-highlight">
+                    <h4>核心目标</h4>
+                    <p>开发一款专业级的视频无痕去字幕微信小程序，为用户提供高效、便捷且高质量的视频去字幕解决方案。</p>
+                </div>
+                <p>本小程序将采用先进的AI技术与传统图像处理相结合的方法，实现自动识别去除字幕与手动涂抹/遮挡字幕的可选择模式及混合模式，为用户提供灵活的操作体验。</p>
+            </div>
+
+            <div class="card">
+                <h3>功能需求分析</h3>
+                <ul>
+                    <li><strong>视频无痕去字幕功能</strong>：结合自动识别去除字幕与手动涂抹/遮挡字幕的可选择模式及混合模式</li>
+                    <li><strong>支持多种视频格式</strong>：支持MP4、MOV格式的视频文件处理</li>
+                    <li><strong>视频处理时长限制</strong>：最大支持3分钟的视频处理</li>
+                    <li><strong>输出分辨率选择</strong>：支持原分辨率或压缩至720P的输出选择</li>
+                    <li><strong>社交分享功能</strong>：支持处理后视频的社交分享</li>
+                    <li><strong>盈利模式设计</strong>：免费试用+付费解锁高级功能、订阅制（月度/年度）以及广告变现</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>技术架构设计</h3>
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" data-tab="frontend">前端界面</button>
+                        <button class="tab-btn" data-tab="backend">后端处理</button>
+                        <button class="tab-btn" data-tab="ai">AI核心算法</button>
+                        <button class="tab-btn" data-tab="storage">存储服务</button>
+                    </div>
+                    <div class="tab-content active" id="frontend">
+                        <p>基于微信小程序开发，提供简洁易用的操作界面，支持视频上传、处理模式选择、处理进度跟踪和结果预览等功能</p>
+                    </div>
+                    <div class="tab-content" id="backend">
+                        <p>采用腾讯云CloudBase云开发平台，构建无服务器架构，实现视频处理逻辑的高效执行</p>
+                    </div>
+                    <div class="tab-content" id="ai">
+                        <p>集成腾讯云AI服务和开源AI模型，实现视频字幕的智能识别与去除</p>
+                    </div>
+                    <div class="tab-content" id="storage">
+                        <p>使用腾讯云存储服务，实现视频文件的安全存储和高效传输</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="technical" class="animate delay-1">
+            <div class="section-header">
+                <h2>技术实现方案</h2>
+            </div>
+
+            <div class="card">
+                <h3>自动识别去字幕技术方案</h3>
+                <p>自动识别去字幕功能是本项目的核心技术，其技术原理主要基于以下几个关键技术：</p>
+                <ul>
+                    <li><strong>视频智能识别技术</strong>：通过OCR技术自动检测视频中的字幕位置和内容</li>
+                    <li><strong>图像修复技术</strong>：利用先进的AI算法自动修补字幕原来的位置</li>
+                    <li><strong>色彩匹配技术</strong>：自动分析字幕区域周围的色彩特征，实现修补区域与原画面的色彩一致性</li>
+                    <li><strong>边缘融合技术</strong>：对修补区域的边缘进行精细化处理，使其与周围画面自然融合</li>
+                </ul>
+                <div class="feature-highlight">
+                    <h4>关键技术选型</h4>
+                    <p>腾讯云媒体AI服务、腾讯云智能擦除技术、DeepSeek等开源大模型、FFmpeg工具</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>手动涂抹/遮挡字幕技术方案</h3>
+                <p>手动涂抹/遮挡字幕功能为用户提供了更灵活的字幕处理方式：</p>
+                <ul>
+                    <li><strong>视频帧提取</strong>：从输入视频中提取关键帧，供用户进行手动标记和涂抹操作</li>
+                    <li><strong>区域标记</strong>：提供直观的界面，让用户能够在视频帧上直接标记需要处理的区域</li>
+                    <li><strong>视频修复</strong>：根据用户标记的区域，使用AI修复技术对视频进行处理</li>
+                    <li><strong>处理效果预览</strong>：提供实时或近实时的处理效果预览，让用户能够及时调整操作</li>
+                </ul>
+                <div class="feature-highlight">
+                    <h4>关键技术选型</h4>
+                    <p>HTML5 Canvas技术、腾讯云媒体处理服务、OpenCV等开源图像处理库、FFmpeg工具</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>混合模式技术方案</h3>
+                <p>混合模式结合了自动识别去字幕和手动涂抹/遮挡字幕的优势，为用户提供更全面的字幕处理解决方案：</p>
+                <ul>
+                    <li><strong>自动识别+手动优化</strong>：首先使用自动识别技术对视频进行初步处理，然后让用户对处理结果进行检查和手动优化</li>
+                    <li><strong>手动标记+自动处理</strong>：用户先对视频中的关键区域进行标记，系统根据标记信息自动对整个视频进行处理</li>
+                    <li><strong>处理效果融合</strong>：将自动处理和手动处理的结果进行融合，实现更精准、更自然的字幕去除效果</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>视频处理性能优化方案</h3>
+                <p>为了满足用户对视频处理性能的要求，本项目将采取以下优化措施：</p>
+                <ul>
+                    <li><strong>视频格式支持</strong>：使用FFmpeg等工具实现对MP4、MOV等常见视频格式的支持</li>
+                    <li><strong>处理时长限制</strong>：设置最大处理时长为3分钟，平衡处理效率和资源消耗</li>
+                    <li><strong>分辨率控制</strong>：支持原分辨率和720P两种输出选项，用户可根据需求选择</li>
+                    <li><strong>并行处理技术</strong>：利用云函数的并行执行能力，提高视频处理效率</li>
+                    <li><strong>处理队列管理</strong>：实现处理任务的队列管理，避免资源竞争和处理延迟</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="development" class="animate delay-2">
+            <div class="section-header">
+                <h2>开发环境搭建</h2>
+            </div>
+
+            <div class="card">
+                <h3>开发工具与技术栈</h3>
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" data-tab="tools">开发工具</button>
+                        <button class="tab-btn" data-tab="languages">开发语言</button>
+                        <button class="tab-btn" data-tab="services">云服务</button>
+                    </div>
+                    <div class="tab-content active" id="tools">
+                        <ul>
+                            <li>微信小程序开发工具</li>
+                            <li>腾讯云开发平台</li>
+                            <li>FFmpeg</li>
+                        </ul>
+                    </div>
+                    <div class="tab-content" id="languages">
+                        <ul>
+                            <li>JavaScript/TypeScript</li>
+                            <li>CSS</li>
+                            <li>HTML</li>
+                        </ul>
+                    </div>
+                    <div class="tab-content" id="services">
+                        <ul>
+                            <li>腾讯云媒体AI服务</li>
+                            <li>腾讯云智能识别服务</li>
+                            <li>腾讯云存储服务</li>
+                            <li>腾讯云支付和广告服务</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>开发环境配置</h3>
+                <div class="timeline">
+                    <div class="timeline-item left">
+                        <div class="timeline-content">
+                            <h4>注册腾讯云账号</h4>
+                            <p>访问腾讯云官网，注册账号并完成实名认证</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item right">
+                        <div class="timeline-content">
+                            <h4>开通云开发服务</h4>
+                            <p>在腾讯云控制台中开通云开发服务，创建云开发环境</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item left">
+                        <div class="timeline-content">
+                            <h4>配置开发工具</h4>
+                            <p>安装微信小程序开发工具，配置腾讯云开发环境，关联云开发项目</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item right">
+                        <div class="timeline-content">
+                            <h4>获取API密钥</h4>
+                            <p>在腾讯云控制台中获取媒体AI、智能识别等服务的API密钥</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item left">
+                        <div class="timeline-content">
+                            <h4>配置服务器环境</h4>
+                            <p>安装Node.js环境、FFmpeg工具，配置必要的依赖库和环境变量</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>项目结构规划</h3>
+                <pre>video-subtitle-remover/
+├── miniprogram/           # 小程序前端代码
+│   ├── assets/            # 静态资源
+│   ├── components/        # 自定义组件
+│   ├── pages/             # 页面
+│   │   ├── upload/        # 视频上传页面
+│   │   ├── process/       # 处理设置页面
+│   │   ├── preview/       # 处理结果预览页面
+│   │   └── ...           # 其他页面
+│   ├── utils/             # 工具函数
+│   ├── app.js             # 小程序入口文件
+│   └── app.json           # 小程序配置文件
+├── cloudfunctions/        # 云函数代码
+│   ├── video-processor/   # 视频处理云函数
+│   │   ├── index.js       # 云函数入口文件
+│   │   └── package.json   # 依赖管理文件
+│   └── ...                # 其他云函数
+└── project.config.json    # 项目配置文件</pre>
+            </div>
+        </section>
+
+        <section id="modules" class="animate delay-3">
+            <div class="section-header">
+                <h2>功能模块开发</h2>
+            </div>
+
+            <div class="card">
+                <h3>视频上传与预处理模块</h3>
+                <p>视频上传与预处理模块是用户与小程序交互的第一步，其功能包括：</p>
+                <ul>
+                    <li>视频文件选择（本地相册、相机或视频链接）</li>
+                    <li>文件格式验证（MP4、MOV）</li>
+                    <li>文件大小和时长限制（最大3分钟）</li>
+                    <li>视频预览功能</li>
+                    <li>预处理信息显示（时长、分辨率等）</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>处理模式选择模块</h3>
+                <p>处理模式选择模块为用户提供了灵活的字幕处理方式：</p>
+                <ul>
+                    <li><strong>自动识别去字幕模式</strong>：系统将自动识别并去除视频中的字幕</li>
+                    <li><strong>手动涂抹/遮挡模式</strong>：用户可以手动标记需要处理的区域</li>
+                    <li><strong>混合模式</strong>：结合自动识别和手动处理的优势</li>
+                    <li><strong>输出设置</strong>：选择输出分辨率（原分辨率或720P）和其他处理参数</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>手动标记与处理模块</h3>
+                <p>手动标记与处理模块为用户提供了精细控制的能力：</p>
+                <ul>
+                    <li>关键帧提取：从输入视频中提取代表性的关键帧</li>
+                    <li>标记工具：提供画笔、矩形框、椭圆框等工具</li>
+                    <li>标记信息保存：将用户的标记信息保存为处理指令</li>
+                    <li>实时预览：提供实时或近实时的处理效果预览</li>
+                    <li>标记调整：允许用户添加、删除或修改已标记的区域</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>视频处理与进度跟踪模块</h3>
+                <p>视频处理与进度跟踪模块负责实际的视频处理任务和处理状态的反馈：</p>
+                <ul>
+                    <li>处理任务提交：将用户的处理请求提交到后台处理队列</li>
+                    <li>处理进度跟踪：实时显示处理任务的进度</li>
+                    <li>处理状态更新：显示处理任务的当前状态</li>
+                    <li>处理结果通知：处理完成后通知用户，并提供结果预览和下载选项</li>
+                    <li>处理中断与恢复：支持处理任务的暂停、继续和取消操作</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>结果预览与分享模块</h3>
+                <p>结果预览与分享模块为用户提供了处理结果的查看和分享功能：</p>
+                <ul>
+                    <li>处理结果预览：显示处理后的视频，让用户检查处理效果</li>
+                    <li>处理前后对比：提供处理前后的视频对比功能</li>
+                    <li>结果下载：允许用户将处理后的视频下载到本地设备</li>
+                    <li>社交分享：支持将处理后的视频分享到微信朋友圈、好友或群聊</li>
+                    <li>处理结果保存：提供保存处理结果到云存储的功能</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="backend" class="animate delay-4">
+            <div class="section-header">
+                <h2>后台处理服务开发</h2>
+            </div>
+
+            <div class="card">
+                <h3>云函数架构设计</h3>
+                <p>本项目的后台处理服务将基于腾讯云函数构建，采用无服务器架构：</p>
+                <ul>
+                    <li><strong>视频处理云函数</strong>：负责实际的视频处理任务</li>
+                    <li><strong>任务队列管理云函数</strong>：负责处理任务的调度和队列管理</li>
+                    <li><strong>结果存储云函数</strong>：负责处理结果的存储和管理</li>
+                    <li><strong>状态管理云函数</strong>：负责跟踪处理任务的状态和进度</li>
+                    <li><strong>API网关</strong>：提供统一的API接口，用于前端与云函数的交互</li>
+                </ul>
+                <div class="feature-highlight">
+                    <h4>云函数架构优势</h4>
+                    <p>弹性伸缩、按使用计费、无服务器管理、高可用性</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>自动识别去字幕云函数开发</h3>
+                <p>自动识别去字幕云函数是后台处理的核心，其功能包括：</p>
+                <ul>
+                    <li>视频分解：将输入视频分解为连续的图像帧</li>
+                    <li>字幕识别：对每一帧图像进行OCR识别，定位字幕的位置和内容</li>
+                    <li>字幕修复：使用AI修复技术去除识别出的字幕区域，修复背景</li>
+                    <li>视频合成：将处理后的图像帧重新合成为完整的视频</li>
+                    <li>质量优化：对处理后的视频进行质量优化，确保画面流畅、色彩一致</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>手动标记处理云函数开发</h3>
+                <p>手动标记处理云函数根据用户的标记信息进行视频处理：</p>
+                <ul>
+                    <li>标记信息解析：解析用户的标记信息，确定需要处理的区域和处理方式</li>
+                    <li>视频分解：将输入视频分解为连续的图像帧</li>
+                    <li>区域处理：根据用户的标记信息，对每一帧图像的指定区域进行处理</li>
+                    <li>视频合成：将处理后的图像帧重新合成为完整的视频</li>
+                    <li>处理效果优化：对处理后的视频进行优化，确保处理区域与周围环境的一致性</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>任务队列与状态管理开发</h3>
+                <p>任务队列与状态管理是后台处理服务的重要组成部分：</p>
+                <ul>
+                    <li>任务队列管理：管理待处理的任务，实现任务的调度和分配</li>
+                    <li>任务优先级管理：根据任务的类型和用户的优先级，调整任务的处理顺序</li>
+                    <li>任务状态跟踪：跟踪每个任务的处理状态</li>
+                    <li>任务进度更新：更新任务的处理进度，提供给前端显示</li>
+                    <li>任务失败处理：处理任务执行过程中的异常情况，实现任务的重试或回滚</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="ux" class="animate delay-5">
+            <div class="section-header">
+                <h2>用户体验设计</h2>
+            </div>
+
+            <div class="card">
+                <h3>界面设计原则</h3>
+                <ul>
+                    <li><strong>简洁直观</strong>：界面设计简洁明了，操作流程直观易懂</li>
+                    <li><strong>一致性</strong>：保持界面元素和操作流程的一致性</li>
+                    <li><strong>反馈及时</strong>：提供及时的操作反馈，让用户了解当前操作的状态和结果</li>
+                    <li><strong>容错设计</strong>：设计合理的容错机制，避免用户因误操作而导致的问题</li>
+                    <li><strong>高效便捷</strong>：优化操作流程，减少不必要的步骤</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>主要界面设计</h3>
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" data-tab="upload">视频上传界面</button>
+                        <button class="tab-btn" data-tab="process">处理模式选择界面</button>
+                        <button class="tab-btn" data-tab="manual">手动标记界面</button>
+                        <button class="tab-btn" data-tab="preview">结果预览界面</button>
+                    </div>
+                    <div class="tab-content active" id="upload">
+                        <p><strong>功能</strong>：允许用户选择视频文件或输入视频链接，预览视频内容</p>
+                        <p><strong>设计要点</strong>：简洁的上传按钮、直观的预览区域、清晰的文件信息显示</p>
+                    </div>
+                    <div class="tab-content" id="process">
+                        <p><strong>功能</strong>：提供自动识别、手动标记和混合模式的选择，设置输出参数</p>
+                        <p><strong>设计要点</strong>：模式选择按钮、参数设置区域、清晰的说明文字</p>
+                    </div>
+                    <div class="tab-content" id="manual">
+                        <p><strong>功能</strong>：允许用户在视频帧上进行标记，选择处理区域</p>
+                        <p><strong>设计要点</strong>：视频预览区域、标记工具按钮、实时预览功能</p>
+                    </div>
+                    <div class="tab-content" id="preview">
+                        <p><strong>功能</strong>：显示处理后的视频，提供对比、下载和分享功能</p>
+                        <p><strong>设计要点</strong>：视频预览区域、对比按钮、操作按钮</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>交互流程设计</h3>
+                <div class="feature-highlight">
+                    <h4>自动识别去字幕流程</h4>
+                    <p>用户上传视频 → 选择自动模式 → 设置输出参数 → 提交处理 → 等待处理完成 → 预览结果 → 下载或分享</p>
+                </div>
+                <div class="feature-highlight">
+                    <h4>手动标记处理流程</h4>
+                    <p>用户上传视频 → 选择手动模式 → 标记处理区域 → 提交处理 → 等待处理完成 → 预览结果 → 下载或分享</p>
+                </div>
+                <div class="feature-highlight">
+                    <h4>混合模式处理流程</h4>
+                    <p>用户上传视频 → 选择混合模式 → 自动处理 → 手动优化 → 提交处理 → 等待处理完成 → 预览结果 → 下载或分享</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>无障碍设计考虑</h3>
+                <ul>
+                    <li><strong>视觉障碍用户</strong>：提供语音提示功能、高对比度的颜色方案、文字替代方案</li>
+                    <li><strong>听觉障碍用户</strong>：提供视频的字幕和文字说明、视觉提示、操作步骤的文字说明</li>
+                    <li><strong>行动障碍用户</strong>：确保所有功能都可以通过键盘操作完成、提供充足的操作时间、设计大尺寸的操作按钮</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="testing" class="animate">
+            <div class="section-header">
+                <h2>测试与优化</h2>
+            </div>
+
+            <div class="card">
+                <h3>测试计划与方法</h3>
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" data-tab="function">功能测试</button>
+                        <button class="tab-btn" data-tab="performance">性能测试</button>
+                        <button class="tab-btn" data-tab="compatibility">兼容性测试</button>
+                        <button class="tab-btn" data-tab="ux-test">用户体验测试</button>
+                    </div>
+                    <div class="tab-content active" id="function">
+                        <p><strong>测试目的</strong>：验证各个功能模块是否按预期工作</p>
+                        <p><strong>测试方法</strong>：使用黑盒测试方法，模拟用户操作，检查功能是否正常执行</p>
+                        <p><strong>测试用例</strong>：覆盖各种输入情况、边界条件和异常情况</p>
+                    </div>
+                    <div class="tab-content" id="performance">
+                        <p><strong>测试目的</strong>：评估系统在不同负载下的性能表现</p>
+                        <p><strong>测试方法</strong>：使用压力测试工具，模拟高并发处理请求</p>
+                        <p><strong>测试指标</strong>：处理时间、响应时间、资源消耗等</p>
+                    </div>
+                    <div class="tab-content" id="compatibility">
+                        <p><strong>测试目的</strong>：验证系统在不同设备和环境下的兼容性</p>
+                        <p><strong>测试方法</strong>：在不同型号的手机、不同版本的微信和不同网络环境下进行测试</p>
+                        <p><strong>测试指标</strong>：界面显示是否正常、功能是否可用</p>
+                    </div>
+                    <div class="tab-content" id="ux-test">
+                        <p><strong>测试目的</strong>：评估用户体验的好坏，发现潜在的易用性问题</p>
+                        <p><strong>测试方法</strong>：邀请真实用户进行测试，收集用户反馈</p>
+                        <p><strong>测试指标</strong>：任务完成时间、错误率、用户满意度等</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>性能优化策略</h3>
+                <ul>
+                    <li><strong>视频处理优化</strong>：优化视频分解和合成算法，采用并行处理技术，优化AI模型的推理速度</li>
+                    <li><strong>资源管理优化</strong>：合理分配云函数的计算资源，实现处理任务的队列管理，优化临时存储的使用</li>
+                    <li><strong>网络优化</strong>：优化视频上传和下载的网络传输效率，使用CDN加速静态资源的访问</li>
+                    <li><strong>代码优化</strong>：优化算法逻辑，缓存常用数据和处理结果，使用高效的数据结构和算法</li>
+                    <li><strong>用户体验优化</strong>：优化交互流程，提供处理进度的实时反馈，实现异步处理</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>用户反馈收集与迭代计划</h3>
+                <ul>
+                    <li><strong>反馈渠道设置</strong>：小程序内反馈入口、在线客服支持、用户社区</li>
+                    <li><strong>反馈分类与分析</strong>：对用户反馈进行分类整理，识别常见问题和需求</li>
+                    <li><strong>迭代开发计划</strong>：基于用户反馈和市场需求，制定迭代开发计划</li>
+                    <li><strong>版本发布策略</strong>：制定版本发布计划，进行版本测试和验证</li>
+                    <li><strong>长期维护策略</strong>：建立系统监控机制，定期进行系统优化和性能调整</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="deployment" class="animate">
+            <div class="section-header">
+                <h2>部署与发布</h2>
+            </div>
+
+            <div class="card">
+                <h3>云资源配置</h3>
+                <p>本项目在腾讯云上需要配置的资源包括：</p>
+                <ul>
+                    <li><strong>云开发环境</strong>：云函数、云数据库、云存储</li>
+                    <li><strong>媒体处理资源</strong>：腾讯云媒体AI服务、腾讯云智能识别服务、腾讯云媒体处理服务</li>
+                    <li><strong>网络资源</strong>：CDN加速、API网关</li>
+                    <li><strong>安全资源</strong>：访问控制、数据加密、安全审计</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>小程序发布流程</h3>
+                <ol>
+                    <li><strong>代码提交与审核</strong>：将代码上传到微信公众平台，填写小程序信息，提交审核</li>
+                    <li><strong>版本管理</strong>：维护不同版本的代码，记录版本更新日志</li>
+                    <li><strong>发布上线</strong>：审核通过后，将小程序发布上线</li>
+                    <li><strong>灰度发布</strong>：采用灰度发布策略，逐步扩大新版本的用户范围</li>
+                    <li><strong>发布后验证</strong>：验证小程序的各项功能，检查兼容性，收集用户反馈</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h3>运维与监控</h3>
+                <ul>
+                    <li><strong>系统监控</strong>：监控云函数、云存储和数据库的运行状态</li>
+                    <li><strong>日志管理</strong>：收集和管理系统日志，设置日志存储周期和备份策略</li>
+                    <li><strong>性能优化</strong>：定期分析系统性能数据，调整系统配置和资源分配</li>
+                    <li><strong>安全管理</strong>：定期进行安全漏洞扫描和评估，更新安全策略</li>
+                    <li><strong>故障处理</strong>：建立故障报告和处理流程，制定应急预案</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>成本控制策略</h3>
+                <ul>
+                    <li><strong>资源优化配置</strong>：根据实际业务需求合理配置云资源，使用按需计费模式</li>
+                    <li><strong>服务选择优化</strong>：选择性价比高的腾讯云服务，合理使用付费服务</li>
+                    <li><strong>开发成本控制</strong>：采用敏捷开发方法，复用已有的代码和组件</li>
+                    <li><strong>运营成本控制</strong>：建立有效的用户获取和留存策略，优化广告投放策略</li>
+                    <li><strong>长期成本规划</strong>：制定长期成本预算和规划，预测业务增长对成本的影响</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="monetization" class="animate">
+            <div class="section-header">
+                <h2>盈利模式实施</h2>
+            </div>
+
+            <div class="card">
+                <h3>免费试用与付费解锁策略</h3>
+                <ul>
+                    <li><strong>免费试用策略</strong>：提供基础功能的免费试用，设置免费试用的次数或时长限制，免费版本包含广告</li>
+                    <li><strong>付费解锁策略</strong>：提供付费套餐解锁高级功能，设计不同档次的付费套餐，提供订阅制和单次购买选项</li>
+                    <li><strong>功能分级策略</strong>：基础功能免费，高级功能付费解锁，特殊功能按次付费或作为增值服务提供</li>
+                    <li><strong>用户转化策略</strong>：在免费试用过程中展示付费功能的优势，提供限时优惠和折扣，建立用户激励机制</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>订阅制设计</h3>
+                <ul>
+                    <li><strong>订阅套餐设计</strong>：月度订阅、年度订阅、企业订阅</li>
+                    <li><strong>订阅权益设计</strong>：无限制的处理次数、优先处理权、专属功能、无广告体验</li>
+                    <li><strong>订阅管理系统</strong>：提供订阅状态查询和管理功能，支持订阅套餐的升级、降级和取消</li>
+                    <li><strong>订阅推广策略</strong>：新用户首月优惠、年度订阅折扣、企业用户团体优惠</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>广告变现策略</h3>
+                <ul>
+                    <li><strong>广告形式选择</strong>：插屏广告、激励广告、横幅广告</li>
+                    <li><strong>广告位置优化</strong>：在处理完成页面展示插屏广告，在免费功能入口附近展示激励广告</li>
+                    <li><strong>广告频率控制</strong>：控制广告的展示频率，根据用户的付费状态调整广告展示频率</li>
+                    <li><strong>广告内容匹配</strong>：根据用户的使用行为和偏好展示相关广告，与视频编辑相关的广告主合作</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="summary" class="animate">
+            <div class="section-header">
+                <h2>总结与展望</h2>
+            </div>
+
+            <div class="card">
+                <h3>项目成果总结</h3>
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" data-tab="technical-achievements">技术成果</button>
+                        <button class="tab-btn" data-tab="product-achievements">产品成果</button>
+                        <button class="tab-btn" data-tab="operational-achievements">运营成果</button>
+                    </div>
+                    <div class="tab-content active" id="technical-achievements">
+                        <ul>
+                            <li>实现了自动识别去字幕、手动涂抹/遮挡字幕和混合模式三种处理方式</li>
+                            <li>支持MP4和MOV格式的视频处理，最大处理时长为3分钟</li>
+                            <li>提供原分辨率和720P两种输出选项</li>
+                            <li>集成了腾讯云媒体AI和开源AI模型，实现了高质量的字幕识别和修复效果</li>
+                        </ul>
+                    </div>
+                    <div class="tab-content" id="product-achievements">
+                        <ul>
+                            <li>设计了简洁易用的用户界面，优化了操作流程</li>
+                            <li>实现了完整的视频处理流程，从上传到处理再到结果分享</li>
+                            <li>提供了完善的处理进度跟踪和结果预览功能</li>
+                            <li>建立了包括免费试用、付费解锁和订阅制在内的盈利模式</li>
+                        </ul>
+                    </div>
+                    <div class="tab-content" id="operational-achievements">
+                        <ul>
+                            <li>构建了基于腾讯云的高效、稳定的后台处理系统</li>
+                            <li>实现了任务队列管理和资源优化配置</li>
+                            <li>建立了完善的监控和运维体系，确保系统的稳定运行</li>
+                            <li>设计了合理的成本控制策略，确保项目在预算范围内完成</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>技术创新点</h3>
+                <ul>
+                    <li><strong>AI字幕识别与修复技术</strong>：结合腾讯云媒体AI的OCR识别能力和开源AI模型的修复能力，实现了高精度的字幕识别和无痕修复</li>
+                    <li><strong>混合模式处理技术</strong>：设计了自动识别与手动处理相结合的混合模式，充分发挥两种方法的优势</li>
+                    <li><strong>高效的视频处理架构</strong>：基于腾讯云函数构建了分布式的视频处理架构，实现了高效的并行处理</li>
+                    <li><strong>移动端优化技术</strong>：针对移动端的特点优化了视频处理算法，减少了内存和计算资源的消耗</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>未来发展方向</h3>
+                <ul>
+                    <li><strong>功能扩展</strong>：支持更多的视频格式和编码方式，增加更多的处理模式和参数选项</li>
+                    <li><strong>技术升级</strong>：引入更先进的AI模型，探索基于深度学习的视频修复技术</li>
+                    <li><strong>平台扩展</strong>：开发iOS和Android原生应用，提供桌面端应用，开放API接口</li>
+                    <li><strong>商业模式创新</strong>：探索B端市场，开发基于AI的视频内容分析和管理工具，建立创作者社区</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>项目价值与意义</h3>
+                <ul>
+                    <li><strong>用户价值</strong>：为视频创作者提供了高效的字幕处理工具，降低了技术门槛，提升了视频的观赏体验</li>
+                    <li><strong>技术价值</strong>：探索了AI技术在视频处理领域的应用，构建了高效的分布式视频处理架构</li>
+                    <li><strong>商业价值</strong>：建立了可持续的盈利模式，开发了具有市场竞争力的产品</li>
+                    <li><strong>社会价值</strong>：促进了视频内容的创作和传播，推动了AI技术的普及和应用</li>
+                </ul>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>关于我们</h3>
+                    <p>我们致力于开发创新的视频处理解决方案，帮助用户释放创造力，轻松实现视频内容的二次创作。</p>
+                </div>
+                <div class="footer-column">
+                    <h3>联系我们</h3>
+                    <ul>
+                        <li><a href="mailto:contact@example.com">contact@example.com</a></li>
+                        <li><a href="tel:+1234567890">+123 456 7890</a></li>
+                        <li><a href="#">访问我们的网站</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>相关链接</h3>
+                    <ul>
+                        <li><a href="#overview">项目概述</a></li>
+                        <li><a href="#technical">技术实现</a></li>
+                        <li><a href="#modules">功能模块</a></li>
+                        <li><a href="#monetization">盈利模式</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © 2023 视频无痕去字幕微信小程序开发方案. 保留所有权利。
+            </div>
+        </div>
+    </footer>
+
+    <div class="back-to-top" id="backToTop">↑</div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const navLinks = document.getElementById('navLinks');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // Progress bar
+        window.onscroll = function() {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById("progressBar").style.width = scrolled + "%";
+            
+            // Back to top button visibility
+            const backToTop = document.getElementById('backToTop');
+            if (winScroll > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        };
+
+        // Back to top button
+        document.getElementById('backToTop').addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Tab functionality
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                
+                // Remove active class from all buttons and content
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                btn.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Animation on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate').forEach(element => {
+            element.style.animationPlayState = 'paused';
+            observer.observe(element);
+        });
+    </script>
+</body>
+</html>
